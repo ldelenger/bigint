@@ -1,4 +1,4 @@
-#include <bigint/bigint.h>
+#include "bigint.h"
 
 #define hex2dec(A) ((A) <= '9' ? (A) - '0' : (A) <= 'F' ? (A) - 'A' + 10 : (A) - 'a' + 10)
 
@@ -51,7 +51,7 @@ void bigint_set8(bigint_t bigint, uint8_t value){
 
 bigint_t bigint_create(uint32_t size){
 	size = bigint_adjust_size(size);
-	uint32_t * memory = malloc(size + 4);
+	uint32_t * memory = (uint32_t*)malloc(size + 4);
 	*memory = size;
 	memset(memory + 1, 0, size);
 	return (bigint_t)(memory + 1);
@@ -249,7 +249,7 @@ bigint_t bigint_padd(bigint_t bigint, uint64_t value){
 }
 
 bigint_t bigint_pow(bigint_t bigint, uint64_t value){
-	assert(BIGINT_NOT_IMPELEMENTED);
+	assert(BIGINT_NOT_IMPLEMENTED);
 	return bigint;
 }
 
@@ -388,7 +388,7 @@ extern char* bigint_to_string(bigint_t bigint, uint32_t base){
 			free(bstr);
 		}
 		bstr_size = 4 + (bigint_get_size(bigint) << 3);
-		bstr = malloc(bstr_size);
+		bstr = (char*)malloc(bstr_size);
 	}
 	if(bigint_to_string_s(bigint, base, bstr, bstr_size))
 		return NULL;
@@ -555,3 +555,4 @@ uint64_t bigint_bitstr_to64(const char* bstr, uint32_t len){
 	}
 	return result;
 }
+

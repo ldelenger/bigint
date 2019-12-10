@@ -1,6 +1,10 @@
 #ifndef __BIGINT_H__
 #define __BIGINT_H__
 
+# if defined(__cplusplus)
+extern "C" {
+# endif
+
 #include <string.h>
 #include <assert.h>
 #include <stdint.h>
@@ -90,6 +94,10 @@ uint32_t BIGINT_CONST_INLINE	bigint_adjust_size(uint32_t);
 uint64_t			bigint_bitstr_to64(const char*, uint32_t);
 extern char*			bigint_to_string(bigint_t, uint32_t);
 uint32_t			bigint_to_string_s(bigint_t, uint32_t, char*, uint32_t);
+
+# if defined(__cplusplus)
+}
+# endif
 
 #endif
 
