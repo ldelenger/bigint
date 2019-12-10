@@ -8,7 +8,6 @@ extern "C" {
 #include <string.h>
 #include <assert.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #define BIGINT_CONST_INLINE
