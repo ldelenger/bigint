@@ -199,8 +199,7 @@ bigint_t bigint_pmul(bigint_t bigint, uint16_t value){
 }
 
 uint32_t bigint_pdiv(bigint_t bigint, uint32_t value){
-	if(bigint == NULL)
-		return 0;
+	__check_bigint_uint(bigint);
 
 	uint64_t carry = 0;
 	uint64_t tmp;
@@ -221,8 +220,7 @@ uint32_t bigint_pdiv(bigint_t bigint, uint32_t value){
 }
 
 uint32_t bigint_pmod(bigint_t bigint, uint32_t value){
-	if(bigint == NULL)
-		return 0;
+	__check_bigint_uint(bigint);
 
 	uint64_t carry = 0;
 	uint16_t tmp;
@@ -251,7 +249,7 @@ bigint_t bigint_padd(bigint_t bigint, uint64_t value){
 }
 
 bigint_t bigint_pow(bigint_t bigint, uint64_t value){
-	__check_bigint(bigint);
+	assert(BIGINT_NOT_IMPELEMENTED);
 	return bigint;
 }
 
@@ -465,7 +463,7 @@ uint32_t bigint_to_bin_string_s(bigint_t bigint, char * buffer, uint32_t bufsize
 }
 
 uint32_t bigint_to_string_s(bigint_t bigint, uint32_t base, char* buffer, uint32_t bufsize){
-	__check_bigint(bigint); assert(buffer != NULL);
+	__check_bigint_uint(bigint); assert(buffer != NULL);
 	memset(buffer, 0, bufsize);
 	switch(base){
 		case 16:

@@ -22,9 +22,15 @@
 # if defined(BIGINT_NULL_ASSERT)
 # define __check_bigint(B) assert((B) != NULL)
 # define __check_bigint_void(B) assert((B) != NULL)
+# define __check_bigint_uint(B) assert((B) != NULL)
+# elif defined(BIGINT_NO_CHECK)
+# define __check_bigint(B)
+# define __check_bigint_void(B)
+# define __check_bigint_uint(B)
 # else
 # define __check_bigint(B) if((B) == NULL) return NULL
 # define __check_bigint_void(B) if((B) == NULL) return
+# define __check_bigint_uint(B) if((B) == NULL) return 0
 # endif
 
 
