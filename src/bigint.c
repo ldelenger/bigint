@@ -167,7 +167,7 @@ bigint_t bigint_num_init(bigint_t bigint, uint64_t num){
 }
 
 bigint_t bigint_from_str(const char* str){
-	bigint_t bigint = bigint_create(bigint_byte_size(str));
+	bigint_t bigint = bigint_create(str == NULL ? 0 : bigint_byte_size(str));
 	return bigint_str_init(bigint, str);
 }
 
@@ -223,7 +223,6 @@ uint32_t bigint_pmod(bigint_t bigint, uint32_t value){
 	__check_bigint_uint(bigint);
 
 	uint64_t carry = 0;
-	uint16_t tmp;
 	uint32_t i = bigint_get_size(bigint);
 	bigint_skip_zero(&bigint, &i);	
 	while(i > 0){

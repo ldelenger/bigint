@@ -38,6 +38,7 @@ extern "C" {
 # endif
 
 
+#define bigint_check_base(b)    ((b) == 2 || (b) == 10 || (b) == 16)
 
 #define bigint_get_size(B) 	*(uint32_t*)((B) - 4)
 
