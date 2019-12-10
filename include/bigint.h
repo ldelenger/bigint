@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 #define BIGINT_CONST_INLINE
 #define BIGINT_INLINE
