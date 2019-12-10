@@ -254,15 +254,25 @@ bigint_t bigint_pow(bigint_t bigint, uint64_t value){
 
 bigint_t bigint_shl(bigint_t bigint, uint64_t shift){
 	__check_bigint(bigint);	
+
+	if(((shift >> 6) << 3) >= bigint_get_size(bigint)){
+		memset(bigint, 0, bigint_get_size(bigint));
+		return bigint;
+	}
+
+	uint64_t carry = 0, tmp;
+	uint32_t i = bigint_get_size(bigint) - ((shift >> 6) << 3);
+
+	if(shift >> 6){
+		memmove(bigint, bigint + ((shift >> 6) << 3), i);
+		memset(bigint + i, 0, (shift >> 6) << 3);
+	}
+	
+	shift &= 0x3f;
+	i -= 8;
+
 	if(shift == 0)
 		return bigint;
-	// TODO: shift qwords
-	assert(shift < 64);
-	// shift &= 0x3f;
-	// ----------------
-	
-	uint64_t carry = 0, tmp;
-	uint32_t i = bigint_get_size(bigint) - 8;
 
 	while(1){
 		tmp = bigint_get64(bigint + i);
@@ -278,16 +288,25 @@ bigint_t bigint_shl(bigint_t bigint, uint64_t shift){
 
 bigint_t bigint_shr(bigint_t bigint, uint64_t shift){
 	__check_bigint(bigint);
-	if(shift == 0)
-		return bigint;
-	// TODO: shift qwords
-	assert(shift < 64);
-	// shift &= 0x3f
-	// --------------
 
 	uint64_t carry = 0, tmp;
-	uint32_t i = 0;
+	uint32_t i = (shift >> 6) << 3;
+	
+	if(i >= bigint_get_size(bigint)){
+		memset(bigint, 0, bigint_get_size(bigint));
+		return bigint;
+	}
 
+	if(i){
+		memmove(bigint + i, bigint, bigint_get_size(bigint) - i); 
+		memset(bigint, 0, i);
+	}
+
+	shift &= 0x3f;
+
+	if(shift == 0)
+		return bigint;
+	
 	while(i < bigint_get_size(bigint)){
 		tmp = bigint_get64(bigint + i);
 		bigint_set64(bigint + i, (tmp >> shift) + carry);

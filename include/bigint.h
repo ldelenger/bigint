@@ -46,17 +46,17 @@ extern "C" {
 
 typedef uint8_t* bigint_t;
 
-BIGINT_API BIGINT_INLINE uint64_t 	bigint_get64(bigint_t);
-BIGINT_API BIGINT_INLINE uint32_t 	bigint_get32(bigint_t);
-BIGINT_API BIGINT_INLINE uint16_t 	bigint_get16(bigint_t);
-BIGINT_API BIGINT_INLINE uint8_t  	bigint_get8 (bigint_t);
+BIGINT_API uint64_t 			bigint_get64(bigint_t);
+BIGINT_API uint32_t 			bigint_get32(bigint_t);
+BIGINT_API uint16_t 			bigint_get16(bigint_t);
+BIGINT_API uint8_t  			bigint_get8 (bigint_t);
 
-BIGINT_API BIGINT_INLINE void 		bigint_set64(bigint_t, uint64_t);	
-BIGINT_API BIGINT_INLINE void		bigint_set32(bigint_t, uint32_t);
-BIGINT_API BIGINT_INLINE void	 	bigint_set16(bigint_t, uint16_t);
-BIGINT_API BIGINT_INLINE void	 	bigint_set8 (bigint_t, uint8_t);
-
-BIGINT_API BIGINT_INLINE uint32_t 	bigint_adjust_size(uint32_t);
+BIGINT_API void 			bigint_set64(bigint_t, uint64_t);	
+BIGINT_API void				bigint_set32(bigint_t, uint32_t);
+BIGINT_API void	 	  		bigint_set16(bigint_t, uint16_t);
+BIGINT_API void	 			bigint_set8 (bigint_t, uint8_t);
+	
+BIGINT_API  uint32_t 			bigint_adjust_size(uint32_t);
 
 BIGINT_API bigint_t	 		bigint_create(uint32_t size);
 BIGINT_API bigint_t			bigint_make_copy(bigint_t);
