@@ -1,7 +1,7 @@
 CC= gcc 
 TARGET= main
 INCLUDE_DIR= ../../include
-CPPFLAGS= -Wall -I$(INCLUDE_DIR)
+CPPFLAGS= -O3 -Wall -I$(INCLUDE_DIR)
 
 default: main
 

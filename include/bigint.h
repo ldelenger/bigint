@@ -82,6 +82,7 @@ BIGINT_API bigint_t			bigint_add(bigint_t, bigint_t);
 BIGINT_API bigint_t			bigint_sub(bigint_t, bigint_t);
 
 BIGINT_API uint32_t			bigint_pcmp(bigint_t, uint64_t);
+BIGINT_API uint32_t			bigint_cmp(bigint_t, bigint_t);
 
 BIGINT_API void				bigint_skip_zero  (bigint_t*, uint32_t*);
 BIGINT_API void				bigint_skip_zero8 (bigint_t*, uint32_t*);

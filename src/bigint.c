@@ -247,8 +247,18 @@ bigint_t bigint_padd(bigint_t bigint, uint64_t value){
 	return bigint;
 }
 
-bigint_t bigint_pow(bigint_t bigint, uint64_t value){
-	assert(BIGINT_NOT_IMPLEMENTED);
+bigint_t bigint_pow(bigint_t bigint, uint64_t power){
+	bigint_t copy = bigint_make_copy(bigint);
+	if(power == 0)
+		bigint_num_init(bigint, 1);
+	else
+		power--;
+
+	while(power){
+		bigint_mul(bigint, copy);
+		power--;
+	}
+	bigint_destroy(copy);
 	return bigint;
 }
 
@@ -391,6 +401,33 @@ uint32_t bigint_pcmp(bigint_t bigint, uint64_t value){
 	return bigint_get64(bigint) > value ? BIGINT_GREATER : bigint_get64(bigint) < value ? BIGINT_LESS : BIGINT_EQUAL;
 }
 
+uint32_t bigint_cmp(bigint_t a, bigint_t b){
+	if(a == NULL || b == NULL){
+		return BIGINT_NEQUAL;
+	}
+
+	uint32_t a_size = bigint_get_size(a);
+	uint32_t b_size = bigint_get_size(b);
+
+	bigint_skip_zero64(&a, &a_size);
+	bigint_skip_zero64(&b, &b_size);
+
+	if(a_size != b_size){
+		return a_size < b_size ? BIGINT_LESS : BIGINT_GREATER;
+	}
+
+	while(a_size){
+		if(*(uint64_t*)a != *(uint64_t*)b){
+			return bigint_get64(a) < bigint_get64(b) ? BIGINT_LESS : BIGINT_GREATER;
+		}	
+		a += 8;
+		b += 8;
+		a_size -= 8;
+	}
+
+	return BIGINT_EQUAL;
+}
+
 extern char* bigint_to_string(bigint_t bigint, uint32_t base){
 	static char * bstr = NULL;
 	static uint32_t bstr_size = 0;
@@ -524,6 +561,14 @@ void bigint_skip_zero32(bigint_t * bigint_ptr, uint32_t * size_ptr){
 	while(*size_ptr && !(*(uint32_t*)(*bigint_ptr))){
 		(*size_ptr)   -= 4;
 		(*bigint_ptr) += 4;
+	}
+}
+
+void bigint_skip_zero64(bigint_t * bigint_ptr, uint32_t * size_ptr){
+	__check_bigint_void(bigint_ptr); __check_bigint_void(*bigint_ptr);
+	while(*size_ptr && !(*(uint64_t*)(*bigint_ptr))){
+		(*size_ptr)   -= 8;
+		(*bigint_ptr) += 8;
 	}
 }
 

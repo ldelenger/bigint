@@ -1,7 +1,10 @@
 #include <bigint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char** argv){
+
+	bigint_t limit = bigint_pow(bigint_num_init(bigint_create(500), 10), 999);
 
 	bigint_t a, b, c;
 
@@ -11,18 +14,17 @@ int main(int argc, char** argv){
 
 	unsigned int index = 2;
 
-	while(strlen(bigint_to_string(c, 10)) < 1000){
+	while(bigint_cmp(a, limit) == BIGINT_LESS){
 		bigint_copy(c, a);
-		bigint_add(c, b);
-		bigint_copy(b, a);
-		bigint_copy(a, c);
+		bigint_add(a, b);
+		bigint_copy(b, c);
 		index++;
 	}
 
 	bigint_destroy(a);
 	bigint_destroy(b);
 	bigint_destroy(c);
-	bigint_to_string(NULL, 0);
+	bigint_destroy(limit);
 
 	printf("index is %u\n", index);
 
