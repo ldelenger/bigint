@@ -1,4 +1,6 @@
 # bigint
 
-1. **The library is still in the development stage**, though implemented api has been tested.
-2.  In future plans **implementation of functions and inner design of the library will change**.
+A simple big integer library in C
+
+### NOTE
+**The library is still raw and a lot of changes have to be made**, but it can do the task, so feel free to use it anywhere.
