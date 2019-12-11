@@ -431,12 +431,14 @@ uint32_t bigint_cmp(bigint_t a, bigint_t b){
 extern char* bigint_to_string(bigint_t bigint, uint32_t base){
 	static char * bstr = NULL;
 	static uint32_t bstr_size = 0;
-	if(bigint == NULL){
+	if(base == 0){
 		if(bstr != NULL){
 			free(bstr);	
 			bstr_size = 0;
 		}
 		return NULL;
+	}else if(base == 1){
+		return bstr;
 	}
 	if(bstr_size < (bigint_get_size(bigint) << 3) + 4){
 		if(bstr_size != 0){
