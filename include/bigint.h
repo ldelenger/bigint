@@ -16,10 +16,15 @@ extern "C" {
 #define BIGINT_MIN_SIZE 		16
 #define BIGINT_SIZE_MASK		0xfffffff0
 #define BIGINT_INSZ_MASK		0xf
-#define BIGINT_EQUAL			0
+
+// bigint_cmp, bigint_pcmp flags
+
+#define BIGINT_NEQUAL			0
 #define BIGINT_GREATER			1
 #define BIGINT_LESS			2
-#define BIGINT_NEQUAL			3
+#define BIGINT_EQUAL			4	
+#define BIGINT_NLESS			5	
+#define BIGINT_NGREATER			6
 
 
 
@@ -39,9 +44,9 @@ extern "C" {
 
 
 #define bigint_check_base(b)    ((b) == 2 || (b) == 10 || (b) == 16)
-
 #define bigint_get_size(B) 	*(uint32_t*)((B) - 4)
-
+#define bigint_test(a, t, b)    (bigint_cmp(a, b) & (t))
+#define bigint_ptest(a, t, b)	(bigint_pcmp(a, b) & (t))
 #define bigint_destroy(B) 	free((B) - 4);
 
 typedef uint8_t* bigint_t;
@@ -72,7 +77,7 @@ BIGINT_API uint32_t			bigint_pmod(bigint_t, uint32_t);
 BIGINT_API bigint_t			bigint_pmul(bigint_t, uint16_t);
 BIGINT_API bigint_t			bigint_padd(bigint_t, uint64_t);
 BIGINT_API bigint_t			bigint_psub(bigint_t, uint64_t);
-BIGINT_API bigint_t			bigint_pow(bigint_t, uint64_t); // not implemented (why?)
+BIGINT_API bigint_t			bigint_pow(bigint_t, uint64_t);
 BIGINT_API bigint_t			bigint_shl(bigint_t, uint64_t);
 BIGINT_API bigint_t			bigint_shr(bigint_t, uint64_t);
 
@@ -92,7 +97,8 @@ BIGINT_API void				bigint_skip_zero64(bigint_t*, uint32_t*);
 
 BIGINT_API uint32_t			bigint_get_actual_size(bigint_t);
 
-BIGINT_API uint32_t 			bigint_byte_size(const char*);
+BIGINT_API uint32_t 			bigint_byte_size_s(const char*);
+BIGINT_API uint32_t			bigint_byte_size_n(uint64_t num_of_digits, uint32_t base);
 
 BIGINT_API uint64_t			bigint_bitstr_to64(const char*, uint32_t);
 BIGINT_API extern char*			bigint_to_string(bigint_t, uint32_t);

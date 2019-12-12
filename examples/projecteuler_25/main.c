@@ -4,17 +4,19 @@
 
 int main(int argc, char** argv){
 
-	bigint_t limit = bigint_pow(bigint_num_init(bigint_create(500), 10), 999);
+	bigint_t limit = bigint_create(bigint_byte_size_n(1024, 10));
+	bigint_num_init(limit, 10);
+	bigint_pow(limit, 999);
 
 	bigint_t a, b, c;
 
-	a = bigint_num_init(bigint_create(500), 1);
+	a = bigint_num_init(bigint_create(bigint_get_size(limit)), 1);
 	b = bigint_make_copy(a);
-	c = bigint_create(500);
+	c = bigint_create(bigint_get_size(limit));
 
 	unsigned int index = 2;
 
-	while(bigint_cmp(a, limit) == BIGINT_LESS){
+	while(bigint_test(a, BIGINT_LESS, limit)){
 		bigint_copy(c, a);
 		bigint_add(a, b);
 		bigint_copy(b, c);

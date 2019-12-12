@@ -66,10 +66,12 @@ bigint_t bigint_make_copy(bigint_t bigint){
 
 bigint_t bigint_copy(bigint_t dst, bigint_t src){
 	__check_bigint(dst); __check_bigint(src);
-	if(bigint_get_size(dst) < bigint_get_size(src))
-		return NULL;
 	memset(dst, 0, bigint_get_size(dst));
-	memcpy(dst + bigint_get_size(dst) - bigint_get_size(src), src, bigint_get_size(src));
+	if(bigint_get_size(src) <= bigint_get_size(dst)){
+		memcpy(dst + bigint_get_size(dst) - bigint_get_size(src), src, bigint_get_size(src));
+	}else{
+		memcpy(dst, src + bigint_get_size(src) - bigint_get_size(dst), bigint_get_size(dst));
+	}
 	return dst;
 }
 
@@ -167,7 +169,7 @@ bigint_t bigint_num_init(bigint_t bigint, uint64_t num){
 }
 
 bigint_t bigint_from_str(const char* str){
-	bigint_t bigint = bigint_create(str == NULL ? 0 : bigint_byte_size(str));
+	bigint_t bigint = bigint_create(str == NULL ? 0 : bigint_byte_size_s(str));
 	return bigint_str_init(bigint, str);
 }
 
@@ -384,6 +386,12 @@ bigint_t bigint_mul(bigint_t a, bigint_t b){
 	bigint_destroy(copy);
 	return a;		
 }
+
+bigint_t bigint_div(bigint_t a, bigint_t b){
+	assert(BIGINT_NOT_IMPLEMENTED);
+	return a;
+}
+
 uint32_t bigint_pcmp(bigint_t bigint, uint64_t value){
 	if(bigint == NULL)
 		return BIGINT_NEQUAL;
@@ -431,24 +439,25 @@ uint32_t bigint_cmp(bigint_t a, bigint_t b){
 extern char* bigint_to_string(bigint_t bigint, uint32_t base){
 	static char * bstr = NULL;
 	static uint32_t bstr_size = 0;
+
+	#define BSTR_MIN_SIZE 2
+
 	if(base == 0){
 		if(bstr != NULL){
 			free(bstr);	
 			bstr_size = 0;
 		}
-		return NULL;
-	}else if(base == 1){
-		return bstr;
 	}
-	if(bstr_size < (bigint_get_size(bigint) << 3) + 4){
-		if(bstr_size != 0){
-			free(bstr);
+	if(base > 1){
+		if(bstr_size < (bigint_get_size(bigint) << 3) + BSTR_MIN_SIZE){
+			if(bstr_size != 0){
+				free(bstr);
+			}
+			bstr_size = (bigint_get_size(bigint) << 3) + BSTR_MIN_SIZE;
+			bstr = (char*)malloc(bstr_size);
 		}
-		bstr_size = 4 + (bigint_get_size(bigint) << 3);
-		bstr = (char*)malloc(bstr_size);
+		bigint_to_string_s(bigint, base, bstr, bstr_size);
 	}
-	if(bigint_to_string_s(bigint, base, bstr, bstr_size))
-		return NULL;
 	return bstr;
 }
 
@@ -520,8 +529,12 @@ uint32_t bigint_to_bin_string_s(bigint_t bigint, char * buffer, uint32_t bufsize
 }
 
 uint32_t bigint_to_string_s(bigint_t bigint, uint32_t base, char* buffer, uint32_t bufsize){
-	__check_bigint_uint(bigint); assert(buffer != NULL);
+	__check_bigint_uint(bigint); assert(buffer != NULL); assert(bufsize > 1);
 	memset(buffer, 0, bufsize);
+	if(bigint_pcmp(bigint, 0) == BIGINT_EQUAL){
+		buffer[0] = '0'; buffer[1] = 0;
+		return 0;
+	}
 	switch(base){
 		case 16:
 			return bigint_to_hex_string_s(bigint, buffer, bufsize - 1);
@@ -584,25 +597,35 @@ uint32_t bigint_get_actual_size(bigint_t bigint){
 	return size;
 }
 
-uint32_t bigint_byte_size(const char* str){
+uint32_t bigint_byte_size_s(const char* str){
 	uint32_t size = strlen(str);
 	if(str[0] == '0'){
 		size--;
 		if(str[1] == 'x' || str[1] == 'X'){
 			size--;
 			size = (size >> 1) + (size & 0x1);	
+		}else if(str[1] == 'b' || str[1] == 'B'){
+			size = (size >> 3) + (1 && (size & 0x7));
 		}else{
-			size = size + (size << 1);
-			size = (size >> 3) + ((size & 0x7) && 1);
+			size += (size << 1);
+			size = (size >> 3) + (1 && (size & 0x7));
 		}
 	}else{
-		size >>= 1;
+		size = (size >> 1) << (1 && (size & 0x7));
 	}
 	return size;
 }
 
+uint32_t bigint_byte_size_n(uint64_t num_of_digits, uint32_t base){
+	return base == 16 ? (num_of_digits >> 1) + (num_of_digits & 1) \
+	     : base == 10 ? (num_of_digits >> 1) + (1 && (num_of_digits & 7)) \
+	     : base == 8  ? ((num_of_digits * 3) >> 3) + (1 && ((num_of_digits * 3) & 7)) \
+	     : base == 2  ? (num_of_digits >> 3) + (1 && (num_of_digits & 7)) \
+	     : 0; 
+}
+
 uint32_t bigint_adjust_size(uint32_t size){
-	return size < BIGINT_MIN_SIZE ? BIGINT_MIN_SIZE : (size & BIGINT_SIZE_MASK) << (1 && (size & BIGINT_INSZ_MASK));
+	return size < BIGINT_MIN_SIZE ? BIGINT_MIN_SIZE : (size & BIGINT_SIZE_MASK) + (BIGINT_MIN_SIZE) * (1 && (size & BIGINT_INSZ_MASK));
 }
 
 uint64_t bigint_bitstr_to64(const char* bstr, uint32_t len){
