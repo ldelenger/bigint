@@ -84,7 +84,7 @@ BIGINT_API bigint_t			bigint_shl(bigint_t, uint64_t);
 BIGINT_API bigint_t			bigint_shr(bigint_t, uint64_t);
 BIGINT_API bigint_t			bigint_not(bigint_t);
 
-BIGINT_API bigint_t 			bigint_div(bigint_t, bigint_t); // not implemented
+BIGINT_API bigint_t 			bigint_div(bigint_t, bigint_t); 
 BIGINT_API bigint_t			bigint_mul(bigint_t, bigint_t);
 BIGINT_API bigint_t			bigint_add(bigint_t, bigint_t);
 BIGINT_API bigint_t			bigint_sub(bigint_t, bigint_t);
