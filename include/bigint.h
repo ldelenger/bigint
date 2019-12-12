@@ -19,9 +19,10 @@ extern "C" {
 
 // bigint_cmp, bigint_pcmp flags
 
-#define BIGINT_NEQUAL			0
+#define BIGINT_UNDEFINED		0
 #define BIGINT_GREATER			1
 #define BIGINT_LESS			2
+#define BIGINT_NEQUAL			3
 #define BIGINT_EQUAL			4	
 #define BIGINT_NLESS			5	
 #define BIGINT_NGREATER			6
@@ -78,8 +79,10 @@ BIGINT_API bigint_t			bigint_pmul(bigint_t, uint16_t);
 BIGINT_API bigint_t			bigint_padd(bigint_t, uint64_t);
 BIGINT_API bigint_t			bigint_psub(bigint_t, uint64_t);
 BIGINT_API bigint_t			bigint_pow(bigint_t, uint64_t);
+
 BIGINT_API bigint_t			bigint_shl(bigint_t, uint64_t);
 BIGINT_API bigint_t			bigint_shr(bigint_t, uint64_t);
+BIGINT_API bigint_t			bigint_not(bigint_t);
 
 BIGINT_API bigint_t 			bigint_div(bigint_t, bigint_t); // not implemented
 BIGINT_API bigint_t			bigint_mul(bigint_t, bigint_t);
@@ -99,6 +102,7 @@ BIGINT_API uint32_t			bigint_get_actual_size(bigint_t);
 
 BIGINT_API uint32_t 			bigint_byte_size_s(const char*);
 BIGINT_API uint32_t			bigint_byte_size_n(uint64_t num_of_digits, uint32_t base);
+BIGINT_API uint64_t			bigint_msb_offset(bigint_t bigint);
 
 BIGINT_API uint64_t			bigint_bitstr_to64(const char*, uint32_t);
 BIGINT_API extern char*			bigint_to_string(bigint_t, uint32_t);

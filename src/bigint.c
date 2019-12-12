@@ -1,4 +1,5 @@
 #include "bigint.h"
+#include <stdio.h>
 
 #define hex2dec(A) ((A) <= '9' ? (A) - '0' : (A) <= 'F' ? (A) - 'A' + 10 : (A) - 'a' + 10)
 
@@ -244,6 +245,8 @@ bigint_t bigint_padd(bigint_t bigint, uint64_t value){
 		carry += value;
 		bigint_set64(bigint + size, carry);
 		carry = carry < value;
+		if(size == 0)
+			break;
 		size -= 8;
 	}
 	return bigint;
@@ -329,14 +332,28 @@ bigint_t bigint_shr(bigint_t bigint, uint64_t shift){
 	return bigint;
 }
 
-bigint_t bigint_add(bigint_t a, bigint_t b){
-	__check_bigint(a);
-	assert(b != NULL);
+bigint_t bigint_not(bigint_t bigint){
+	__check_bigint(bigint);
 
+	uint32_t index = bigint_get_size(bigint);
+	bigint += index - 8;
+
+	while(index){
+		*(uint64_t*)bigint = ~(*(uint64_t*)bigint);
+		index -= 8;
+		bigint -= 8;
+	}
+
+	return bigint + 8;
+
+}
+
+bigint_t bigint_add(bigint_t a, bigint_t b){
+	if(a == NULL || b == NULL)
+		return a;
+	
 	uint32_t a_index = bigint_get_size(a) - 8, b_index = bigint_get_size(b) - 8, sticky;
 	uint64_t carry, tmp;
-
-	assert(a_index <= b_index);
 
 	sticky = 0;
 
@@ -351,6 +368,21 @@ bigint_t bigint_add(bigint_t a, bigint_t b){
 		b_index -= 8;
 	}
 	return a;
+}
+
+bigint_t bigint_sub(bigint_t a, bigint_t b){
+	if(a == NULL || b == NULL)
+		return a;
+	
+	bigint_t b_copy = bigint_make_copy(b);
+
+	bigint_add(a, bigint_padd(bigint_not(b_copy), 1));
+
+	bigint_destroy(b_copy);
+
+	return a;
+
+
 }
 
 bigint_t bigint_mul(bigint_t a, bigint_t b){
@@ -388,7 +420,34 @@ bigint_t bigint_mul(bigint_t a, bigint_t b){
 }
 
 bigint_t bigint_div(bigint_t a, bigint_t b){
-	assert(BIGINT_NOT_IMPLEMENTED);
+
+	uint32_t tmp, b_offset;
+	bigint_t carry, partial;
+
+	if((tmp = bigint_cmp(a, b)) & BIGINT_NGREATER){
+		bigint_num_init(a, tmp == BIGINT_LESS ? 0 : 1);
+	}else{
+		carry = bigint_make_copy(a);
+		partial = bigint_create(bigint_get_size(a));
+		bigint_num_init(a, 0);
+		b_offset = bigint_msb_offset(b);
+		while(bigint_cmp(carry, b) & BIGINT_NLESS){
+			tmp = bigint_msb_offset(carry) - b_offset;
+			bigint_copy(partial, b);
+			bigint_shl(partial, tmp);
+			if(bigint_cmp(partial, carry) == BIGINT_GREATER){
+				bigint_shr(partial, 1);
+				tmp--;
+			}
+			bigint_sub(carry, partial);
+			bigint_num_init(partial, 1);
+			bigint_shl(partial, tmp);
+			bigint_add(a, partial);
+		}
+		bigint_destroy(carry);
+		bigint_destroy(partial);
+	}
+	
 	return a;
 }
 
@@ -622,6 +681,35 @@ uint32_t bigint_byte_size_n(uint64_t num_of_digits, uint32_t base){
 	     : base == 8  ? ((num_of_digits * 3) >> 3) + (1 && ((num_of_digits * 3) & 7)) \
 	     : base == 2  ? (num_of_digits >> 3) + (1 && (num_of_digits & 7)) \
 	     : 0; 
+}
+
+uint64_t bigint_msb_offset(bigint_t bigint){
+	uint64_t offset = bigint_get_size(bigint);
+	uint8_t tmp;
+
+	while(offset && !*(uint64_t*)bigint){
+		offset -= 8;
+		bigint += 8;
+	}
+
+	offset <<= 3;
+
+	if(offset){
+		while(!(*bigint)){
+			offset -= 8;
+			bigint++;
+		}
+
+		tmp = *bigint;
+		if(tmp)
+			offset -= 8;
+		while(tmp){
+			offset++;
+			tmp >>= 1;
+		}
+	}	
+
+	return offset;
 }
 
 uint32_t bigint_adjust_size(uint32_t size){
