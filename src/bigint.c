@@ -253,11 +253,32 @@ bigint_t bigint_padd(bigint_t bigint, uint64_t value){
 }
 
 bigint_t bigint_pow(bigint_t bigint, uint64_t power){
-	bigint_t copy = bigint_make_copy(bigint);
+	bigint_t precomputed, copy = bigint_make_copy(bigint);
+	uint64_t precompute_pow = 0, tmp;
 	if(power == 0)
 		bigint_num_init(bigint, 1);
 	else
 		power--;
+
+	while((power >> precompute_pow) > 4){
+		precompute_pow++;
+	}
+
+	precompute_pow = (1 << precompute_pow) >> 1;
+
+	if(precompute_pow){
+		precomputed = bigint_num_init(bigint_create(bigint_get_size(bigint)), 1);	
+		tmp = precompute_pow;
+		while(tmp){
+			bigint_mul(precomputed, copy);
+			tmp--;
+		}		
+		while(power / precompute_pow){
+			bigint_mul(bigint, precomputed);
+			power -= precompute_pow;
+		}
+		bigint_destroy(precomputed);
+	}
 
 	while(power){
 		bigint_mul(bigint, copy);
